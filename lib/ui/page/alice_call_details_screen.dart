@@ -35,29 +35,23 @@ class _AliceCallDetailsScreenState extends State<AliceCallDetailsScreen>
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: widget.core.directionality ?? Directionality.of(context),
-      child: Theme(
-        data: ThemeData(
-          brightness: widget.core.brightness,
-          colorScheme: ColorScheme.light(secondary: AliceConstants.lightRed),
-        ),
-        child: StreamBuilder<List<AliceHttpCall>>(
-          stream: widget.core.callsSubject,
-          initialData: [widget.call],
-          builder: (context, callsSnapshot) {
-            if (callsSnapshot.hasData) {
-              final AliceHttpCall? call = callsSnapshot.data!.firstWhereOrNull(
-                (snapshotCall) => snapshotCall.id == widget.call.id,
-              );
-              if (call != null) {
-                return _buildMainWidget();
-              } else {
-                return _buildErrorWidget();
-              }
+      child: StreamBuilder<List<AliceHttpCall>>(
+        stream: widget.core.callsSubject,
+        initialData: [widget.call],
+        builder: (context, callsSnapshot) {
+          if (callsSnapshot.hasData) {
+            final AliceHttpCall? call = callsSnapshot.data!.firstWhereOrNull(
+              (snapshotCall) => snapshotCall.id == widget.call.id,
+            );
+            if (call != null) {
+              return _buildMainWidget();
             } else {
               return _buildErrorWidget();
             }
-          },
-        ),
+          } else {
+            return _buildErrorWidget();
+          }
+        },
       ),
     );
   }

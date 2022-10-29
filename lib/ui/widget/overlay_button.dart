@@ -1,5 +1,4 @@
 import 'package:alice/alice.dart';
-import 'package:alice/utils/alice_constants.dart';
 import 'package:flutter/material.dart';
 
 class AliceOverlayButton extends StatefulWidget {
@@ -83,7 +82,7 @@ class _FloatingActionButton extends StatelessWidget {
         height: 55,
         width: 55,
         decoration: BoxDecoration(
-          color: AliceConstants.lightRed,
+          color: Theme.of(context).colorScheme.secondary,
           shape: BoxShape.circle,
         ),
         child: Icon(

@@ -4,14 +4,13 @@ import 'package:alice/alice.dart';
 import 'package:alice/ui/widget/overlay_button.dart';
 import 'package:alice_example/posts_service.dart';
 import 'package:chopper/chopper.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:alice/core/alice_http_client_extensions.dart';
 import 'package:alice/core/alice_http_extensions.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-
-import 'dart:math';
 
 void main() => runApp(MyApp());
 
@@ -61,51 +60,75 @@ class _MyAppState extends State<MyApp> {
       ),
       navigatorKey: _alice.getNavigatorKey(),
       debugShowCheckedModeBanner: false,
-      home: AliceOverlayButton(
-        isShow: true,
-        alice: _alice,
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Alice HTTP Inspector - Example'),
-          ),
-          body: Container(
-            padding: EdgeInsets.all(16),
-            child: ListView(
-              children: [
-                const SizedBox(height: 8),
-                _getTextWidget(
-                    "Welcome to example of Alice Http Inspector. Click buttons below to generate sample data."),
-                ElevatedButton(
-                  child: Text("Run Dio HTTP Requests"),
-                  onPressed: _runDioRequests,
-                  style: _buttonStyle,
+      builder: (context, child) => child == null
+          ? const SizedBox()
+          : Overlay(
+              initialEntries: [
+                OverlayEntry(
+                  builder: (context) => AliceOverlayButton(
+                    isShow: true,
+                    alice: _alice,
+                    child: child,
+                  ),
                 ),
-                ElevatedButton(
-                  child: Text("Run http/http HTTP Requests"),
-                  onPressed: _runHttpHttpRequests,
-                  style: _buttonStyle,
-                ),
-                ElevatedButton(
-                  child: Text("Run HttpClient Requests"),
-                  onPressed: _runHttpHttpClientRequests,
-                  style: _buttonStyle,
-                ),
-                ElevatedButton(
-                  child: Text("Run Chopper HTTP Requests"),
-                  onPressed: _runChopperHttpRequests,
-                  style: _buttonStyle,
-                ),
-                const SizedBox(height: 24),
-                _getTextWidget(
-                    "After clicking on buttons above, you should receive notification."
-                    " Click on it to show inspector. You can also shake your device or click button below."),
-                ElevatedButton(
-                  child: Text("Run HTTP Inspector"),
-                  onPressed: _runHttpInspector,
-                  style: _buttonStyle,
-                )
               ],
             ),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Alice HTTP Inspector - Example'),
+        ),
+        body: Container(
+          padding: EdgeInsets.all(16),
+          child: ListView(
+            children: [
+              const SizedBox(height: 8),
+              _getTextWidget(
+                  "Welcome to example of Alice Http Inspector. Click buttons below to generate sample data."),
+              ElevatedButton(
+                child: Text("Run Dio HTTP Requests"),
+                onPressed: _runDioRequests,
+                style: _buttonStyle,
+              ),
+              ElevatedButton(
+                child: Text("Run http/http HTTP Requests"),
+                onPressed: _runHttpHttpRequests,
+                style: _buttonStyle,
+              ),
+              ElevatedButton(
+                child: Text("Run HttpClient Requests"),
+                onPressed: _runHttpHttpClientRequests,
+                style: _buttonStyle,
+              ),
+              ElevatedButton(
+                child: Text("Run Chopper HTTP Requests"),
+                onPressed: _runChopperHttpRequests,
+                style: _buttonStyle,
+              ),
+              const SizedBox(height: 24),
+              _getTextWidget(
+                  "After clicking on buttons above, you should receive notification."
+                  " Click on it to show inspector. You can also shake your device or click button below."),
+              ElevatedButton(
+                child: Text("Run HTTP Inspector"),
+                onPressed: _runHttpInspector,
+                style: _buttonStyle,
+              ),
+              Builder(
+                builder: (context) => ElevatedButton(
+                  child: Text("Navigate"),
+                  onPressed: () {
+                    Navigator.of(context).push<CupertinoPageRoute>(
+                      CupertinoPageRoute(
+                        builder: (context) => Scaffold(
+                          appBar: AppBar(),
+                        ),
+                      ),
+                    );
+                  },
+                  style: _buttonStyle,
+                ),
+              ),
+            ],
           ),
         ),
       ),
