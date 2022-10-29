@@ -7,7 +7,6 @@ import 'package:alice/helper/alice_conversion_helper.dart';
 import 'package:alice/model/alice_http_call.dart';
 import 'package:alice/utils/alice_parser.dart';
 import 'package:flutter/material.dart';
-import 'package:open_file/open_file.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -92,7 +91,6 @@ class AliceSaveHelper {
           "Success",
           "Successfully saved logs in ${file.path}",
           secondButtonTitle: isAndroid ? "View file" : null,
-          secondButtonAction: () => isAndroid ? OpenFile.open(file.path) : null,
           brightness: brightness,
         );
         return file.path;
@@ -145,6 +143,22 @@ class AliceSaveHelper {
         .write("Duration ${AliceConversionHelper.formatTime(call.duration)}\n");
     stringBuffer.write("Secured connection: ${call.secure}\n");
     stringBuffer.write("Completed: ${!call.loading} \n");
+
+    stringBuffer.write(_buildRequestLog(call));
+
+    stringBuffer.write(_buildResponseLog(call));
+
+    if (call.error != null) {
+      stringBuffer.write(_buildErrorLog(call));
+    }
+
+    stringBuffer.write(_buildCurlLog(call));
+
+    return stringBuffer.toString();
+  }
+
+  static String _buildRequestLog(AliceHttpCall call) {
+    final StringBuffer stringBuffer = StringBuffer();
     stringBuffer.write("--------------------------------------------\n");
     stringBuffer.write("Request\n");
     stringBuffer.write("--------------------------------------------\n");
@@ -165,6 +179,11 @@ class AliceSaveHelper {
     stringBuffer.write(
       "Request body: ${AliceParser.formatBody(call.request!.body, AliceParser.getContentType(call.request!.headers))}\n",
     );
+    return stringBuffer.toString();
+  }
+
+  static String _buildResponseLog(AliceHttpCall call) {
+    final StringBuffer stringBuffer = StringBuffer();
     stringBuffer.write("--------------------------------------------\n");
     stringBuffer.write("Response\n");
     stringBuffer.write("--------------------------------------------\n");
@@ -179,6 +198,20 @@ class AliceSaveHelper {
     stringBuffer.write(
       "Response body: ${AliceParser.formatBody(call.response!.body, AliceParser.getContentType(call.response!.headers))}\n",
     );
+    return stringBuffer.toString();
+  }
+
+  static String _buildCurlLog(AliceHttpCall call) {
+    final StringBuffer stringBuffer = StringBuffer();
+    stringBuffer.write("--------------------------------------------\n");
+    stringBuffer.write("Curl\n");
+    stringBuffer.write("--------------------------------------------\n");
+    stringBuffer.write(call.getCurlCommand());
+    return stringBuffer.toString();
+  }
+
+  static String _buildErrorLog(AliceHttpCall call) {
+    final StringBuffer stringBuffer = StringBuffer();
     if (call.error != null) {
       stringBuffer.write("--------------------------------------------\n");
       stringBuffer.write("Error\n");
@@ -188,22 +221,46 @@ class AliceSaveHelper {
         stringBuffer.write("Error stacktrace: ${call.error!.stackTrace}\n");
       }
     }
-    stringBuffer.write("--------------------------------------------\n");
-    stringBuffer.write("Curl\n");
-    stringBuffer.write("--------------------------------------------\n");
-    stringBuffer.write(call.getCurlCommand());
-    stringBuffer.write("\n");
-    stringBuffer.write("==============================================\n");
-    stringBuffer.write("\n");
-
     return stringBuffer.toString();
   }
 
   static Future<String> buildCallLog(AliceHttpCall call) async {
     try {
-      return await _buildAliceLog() + _buildCallLog(call);
+      return await _buildCallLog(call);
     } catch (exception) {
       return "Failed to generate call log";
+    }
+  }
+
+  static Future<String> buildRequestLog(AliceHttpCall call) async {
+    try {
+      return await _buildRequestLog(call);
+    } catch (exception) {
+      return "Failed to generate Request log";
+    }
+  }
+
+  static Future<String> buildResponseLog(AliceHttpCall call) async {
+    try {
+      return await _buildResponseLog(call);
+    } catch (exception) {
+      return "Failed to generate Response log";
+    }
+  }
+
+  static Future<String> buildErrorLog(AliceHttpCall call) async {
+    try {
+      return await _buildErrorLog(call);
+    } catch (exception) {
+      return "Failed to generate Error log";
+    }
+  }
+
+  static Future<String> buildCurlLog(AliceHttpCall call) async {
+    try {
+      return await _buildCurlLog(call);
+    } catch (exception) {
+      return "Failed to generate Curl log";
     }
   }
 }

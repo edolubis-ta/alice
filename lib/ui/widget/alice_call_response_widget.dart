@@ -1,7 +1,6 @@
 import 'package:alice/model/alice_http_call.dart';
 import 'package:alice/utils/alice_constants.dart';
 import 'package:alice/ui/widget/alice_base_call_details_widget.dart';
-import 'package:better_player/better_player.dart';
 import 'package:flutter/material.dart';
 
 class AliceCallResponseWidget extends StatefulWidget {
@@ -18,13 +17,11 @@ class AliceCallResponseWidget extends StatefulWidget {
 class _AliceCallResponseWidgetState
     extends AliceBaseCallDetailsWidgetState<AliceCallResponseWidget> {
   static const _imageContentType = "image";
-  static const _videoContentType = "video";
   static const _jsonContentType = "json";
   static const _xmlContentType = "xml";
   static const _textContentType = "text";
 
   static const _kLargeOutputSize = 100000;
-  BetterPlayerController? _betterPlayerController;
   bool _showLargeBody = false;
   bool _showUnsupportedBody = false;
 
@@ -57,7 +54,6 @@ class _AliceCallResponseWidgetState
 
   @override
   void dispose() {
-    _betterPlayerController?.dispose();
     super.dispose();
   }
 
@@ -96,8 +92,6 @@ class _AliceCallResponseWidgetState
     final List<Widget> rows = [];
     if (_isImageResponse()) {
       rows.addAll(_buildImageBodyRows());
-    } else if (_isVideoResponse()) {
-      rows.addAll(_buildVideoBodyRows());
     } else if (_isTextResponse()) {
       if (_isLargeResponseBody()) {
         rows.addAll(_buildLargeBodyTextRows());
@@ -193,34 +187,6 @@ class _AliceCallResponseWidgetState
     return rows;
   }
 
-  List<Widget> _buildVideoBodyRows() {
-    _betterPlayerController = BetterPlayerController(
-      const BetterPlayerConfiguration(aspectRatio: 16 / 9, fit: BoxFit.cover),
-      betterPlayerDataSource: BetterPlayerDataSource(
-        BetterPlayerDataSourceType.network,
-        _call.uri,
-      ),
-    );
-
-    final List<Widget> rows = [];
-    rows.add(
-      Row(
-        children: const [
-          Text(
-            "Body: Video",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          )
-        ],
-      ),
-    );
-    rows.add(const SizedBox(height: 8));
-    rows.add(
-      BetterPlayer(controller: _betterPlayerController!),
-    );
-    rows.add(const SizedBox(height: 8));
-    return rows;
-  }
-
   List<Widget> _buildUnknownBodyRows() {
     final List<Widget> rows = [];
     final headers = _call.response!.headers;
@@ -276,12 +242,6 @@ class _AliceCallResponseWidgetState
     return _getContentTypeOfResponse()!
         .toLowerCase()
         .contains(_imageContentType);
-  }
-
-  bool _isVideoResponse() {
-    return _getContentTypeOfResponse()!
-        .toLowerCase()
-        .contains(_videoContentType);
   }
 
   bool _isTextResponse() {
